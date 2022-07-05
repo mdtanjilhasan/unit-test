@@ -38,11 +38,11 @@ class ProductsController extends Controller
         }
     }
 
-    public function update(ProductStoreValidation $request)
+    public function update(ProductStoreValidation $request, $id)
     {
         try {
             $data = $request->validated();
-            $product = Product::findOrFail($data['product_id']);
+            $product = Product::findOrFail($id);
             $product->update($data);
             return $product;
         } catch (Exception $exception) {
@@ -52,6 +52,23 @@ class ProductsController extends Controller
 
     public function delete($id)
     {
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+            return ['message' => 'Successfully Product Deleted'];
+        } catch (Exception $exception) {
+            return ['message' => $exception->getMessage()];
+        }
+    }
 
+    public function forceDelete($id)
+    {
+        try {
+            $product = Product::withTrashed()->findOrFail($id);
+            $product->forceDelete();
+            return ['message' => 'Successfully Product Deleted'];
+        } catch (Exception $exception) {
+            return ['message' => $exception->getMessage()];
+        }
     }
 }

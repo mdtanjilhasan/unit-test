@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -76,19 +75,44 @@ class ProductCRUDTest extends TestCase
         Sanctum::actingAs($user);
 
         $product = Product::factory()->create();
-        $productObj = Product::factory()->make();
 
-        $fillables = collect( ( new Product() )->getFillable() );
-        $fillables[] = 'product_id';
-//
-//        $response = $this->json('put', '/api/products', $product->toArray());
-//        $data = $response->assertStatus(200)->json('data');
-//        $result = collect($data)->only(array_keys($product->getAttributes()));
+        $data = [
+            'name' => 'New product name',
+            'code' => $product->code,
+            'price' => 125.55
+        ];
 
-        $fillables->each(function ($toUpdate) use ($product, $productObj) {
-            $response = $this->json('put', '/api/products/update', [
-                $toUpdate => data_get('')
-            ]);
+        $response = $this->json('PUT','/api/products/update/' . $product->id, $data);
+
+        $result = $response->assertStatus(200)->json('data');
+
+        $product = $product->refresh();
+        collect($data)->each(function ($item, $index) use ($product, $result) {
+            $this->assertSame($result[$index], $product->$index, 'Product Fields are not same');
         });
+    }
+
+    public function test_product_soft_delete()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $product = Product::factory()->create();
+
+        $product->delete();
+
+        $this->assertSoftDeleted($product);
+    }
+
+    public function test_product_delete()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $product = Product::factory()->create();
+
+        $product->forceDelete();
+
+        $this->assertModelMissing($product);
     }
 }

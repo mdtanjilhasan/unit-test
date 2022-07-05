@@ -17,5 +17,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-//Route::get('/users', [\App\Http\Controllers\UsersController::class, 'index']);
-//Route::get('/users/{id}', [\App\Http\Controllers\UsersController::class, 'show']);
+Route::controller(\App\Http\Controllers\AuthController::class)->group(function () {
+    Route::get('/login', 'getLogin');
+    Route::post('/login', 'login');
+    Route::get('/register', 'getRegistration');
+    Route::post('/register', 'register');
+});
+

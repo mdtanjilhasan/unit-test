@@ -29,14 +29,13 @@ class ProductStoreValidation extends FormRequest
         return [
             'name' => 'required|string',
             'code' => $this->getCodeRule(),
-            'price' => 'required|numeric',
-            'product_id' => 'sometimes|required|integer|exists:products,id'
+            'price' => 'required|numeric'
         ];
     }
 
     private function getCodeRule()
     {
-        return request('product_id') ? ['required', 'string', Rule::unique('products', 'code')->ignore(request('product_id'), 'id')] : 'required|string|unique:products,code';
+        return $this->route('id') ? ['required', 'string', Rule::unique('products', 'code')->ignore($this->route('id'), 'id')] : 'required|string|unique:products,code';
     }
 
     protected function failedValidation(Validator $validator)

@@ -22,7 +22,9 @@ Route::middleware(['api'])->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('/{id}', 'show');
-            Route::put('/update', 'update');
+            Route::put('/update/{id}', 'update');
+            Route::delete('/delete/{id}', 'delete');
+            Route::delete('/force-delete/{id}', 'forceDelete');
         });
 
     });
